@@ -13,7 +13,7 @@ The example file shows a basic query language syntax definition, that can
 take this input string:
 
 ```
-customer.namelast=\'\' AND customer.namefirst = \'\' OR ( customer.namelast=\'\' AND customer.namefirst=\'\' )  ORDER customer.namelast DESC , customer.namelast   LIMIT 2
+customer.namelast='' AND customer.namefirst = '' OR ( customer.namelast='' AND customer.namefirst='' )  ORDER customer.namelast DESC , customer.namelast   LIMIT 2
 ```
 
 And produce the following parse tree:

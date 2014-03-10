@@ -8,7 +8,7 @@ namespace Addins\Parser;
  *
  * A leaf in the tree contains something matched by a component.
  */
-class Tree_Leaf extends Tree_node
+class Tree_Leaf extends Tree_Node
 {
 	protected $_raw;
 	protected $_processed;
