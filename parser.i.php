@@ -2,6 +2,12 @@
 
 namespace Addins\Parser;
 
+/**
+ * Class Parser
+ * @package Addins\Parser
+ *
+ * Orchestrates the actual parsing of a string into a parse tree.
+ */
 class Parser
 {
 	/**
@@ -11,6 +17,7 @@ class Parser
 	protected $_blocks;
 
 	/**
+     * The name of the initial block.
 	 * @var string
 	 */
 	protected $_initial_block;
@@ -60,6 +67,7 @@ class Parser
 	/** - INTERNAL **/
 
 	/**
+     * @internal
 	 * @param ParserBlock|string $name
 	 * @return ParserBlock
 	 * @throws ParserConfigurationException
@@ -71,13 +79,20 @@ class Parser
 	}
 
 	/**
+     * @internal
 	 * @param ParserBlock $block
 	 */
 	public function setNextBlock( ParserBlock $block ) {
 		$this->_next_block = $block;
 	}
 
-	protected function _throwPotentialException( ParserException $fallback ) {
+    /**
+     * Gets a potential exception to throw. If none exist in the queue, the fallback exception is thrown instead. The system
+     * considers all potential exceptions and throws the one that occurred earliest in the parse stream.
+     * @param ParserException $fallback
+     * @return ParserException
+     */
+    protected function _throwPotentialException( ParserException $fallback ) {
 		if ( !$this->_potential_exceptions ) return $fallback;
 
 		$lowest = null;
@@ -107,11 +122,16 @@ class Parser
 		return array_pop( $this->_potential_exceptions );
 	}
 
-	public function flushPotentialExceptions() {
+    /**
+     * Once a successful match has been found, potential exceptions should be cleared out.
+     * @internal
+     */
+    public function flushPotentialExceptions() {
 		$this->_potential_exceptions = [];
 	}
 
 	/**
+     * Performs the parsing of a stream.
 	 * @param ParserStream $stream
 	 * @return bool
 	 * @throws ParserException
@@ -157,7 +177,19 @@ class Parser
 		return true;
 	}
 
-	public function addPotentialException( ParserStream $stream , ParserException $exception ) {
+    /**
+     * Used internally to manage a queue of potential exceptions, should parsing fail. Because the parse tree explores
+     * different branches, the exceptions represent only potential errors and will only trigger if all branches fail.
+     * The parse stream is passed to add contextual information.
+     *
+     * Exceptions are prioritized by their place in the parse stream. Should multiple exceptions exist in the queue,
+     * the one earliest in the parse stream is thrown.
+     *
+     * @internal
+     * @param ParserStream $stream
+     * @param ParserException $exception
+     */
+    public function addPotentialException( ParserStream $stream , ParserException $exception ) {
 		$exception->addStreamDetails( $stream );
 		$this->_potential_exceptions[] = $exception;
 	}
@@ -187,5 +219,4 @@ class Parser
 			return false;
 		}
 	}
-
 }

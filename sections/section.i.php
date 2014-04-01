@@ -9,7 +9,20 @@ namespace Addins\Parser;
  */
 abstract class Sections_Section extends ParserBlock
 {
-	protected $_new_leaf;
+    /**
+     * Whether or not to create a new node for this section in the parse tree. Defaults to true if the section
+     * has a name defined.
+     *
+     * @var bool
+     */
+    protected $_new_node;
+
+    /**
+     * @param bool $new_node
+     */
+    public function setNewNode($new_node) {
+        $this->_new_node = $new_node;
+    }
 
 	protected function _insertIntoTree( Parser $parser , ParserBlock $parent , Tree_Branch $parent_node , Tree_Branch $self=null ) {
 		if ( $self === null ) $self = new Tree_Branch();

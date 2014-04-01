@@ -11,10 +11,17 @@ namespace Addins\Parser;
  */
 abstract class ParserBlock
 {
-	protected $_name;
+    /**
+     * The name for the parse block. Names are used within the parse tree and for debugging purposes.
+     * @var string|null
+     */
+    protected $_name;
 
-	// whether or not this should be added to the Tree at all
-	protected $_capture;
+    /**
+     * Whether or not parsed values should be added to the Tree at all.
+     * @var bool
+     */
+    protected $_capture;
 
 	abstract public function parse( Parser $parser , ParserBlock $parent , Tree_Branch $parent_node , ParserStream $stream );
 
