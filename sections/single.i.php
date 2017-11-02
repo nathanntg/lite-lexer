@@ -34,7 +34,7 @@ class Sections_Single extends Sections_Section
 		return $this;
 	}
 
-	public function parse( Parser $parser , ParserBlock $parent , Tree_Branch $parent_node , ParserStream $stream ) {
+	public function parse(Parser $parser, Tree_Branch $parent_node, ParserStream $stream) {
 		$node = new Tree_Branch();
 
 		// look through array of sections
@@ -43,9 +43,9 @@ class Sections_Single extends Sections_Section
 			if ( is_string( $block ) ) $block = $parser->getBlock( $block );
 
 			// find first matching phrase
-			if ( $block->parse( $parser , $this , $node , $stream ) ) {
+			if ($block->parse($parser, $node, $stream)) {
 				// insert tree
-				$this->_insertIntoTree( $parser , $parent , $parent_node , $node );
+				$this->_insertIntoTree($parser, $parent_node, $node);
 
 				return true;
 			}

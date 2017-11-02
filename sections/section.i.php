@@ -24,7 +24,7 @@ abstract class Sections_Section extends ParserBlock
         $this->_new_node = $new_node;
     }
 
-	protected function _insertIntoTree( Parser $parser , ParserBlock $parent , Tree_Branch $parent_node , Tree_Branch $self=null ) {
+	protected function _insertIntoTree(Parser $parser, Tree_Branch $parent_node, Tree_Branch $self=null) {
 		if ( $self === null ) $self = new Tree_Branch();
 
 		// filter

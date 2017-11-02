@@ -56,7 +56,7 @@ class Sections_DelimitedSet extends Sections_Section
 		return $this;
 	}
 
-	public function parse( Parser $parser , ParserBlock $parent , Tree_Branch $parent_node , ParserStream $stream ) {
+	public function parse(Parser $parser, Tree_Branch $parent_node, ParserStream $stream) {
 		// snapshot
 		$stream->snapshot();
 
@@ -74,14 +74,14 @@ class Sections_DelimitedSet extends Sections_Section
 			// get delimiter for second and subsequent entries
 			if ( $matched > 0 ) {
 				// check for delimiter
-				if ( !$block_delimiter->parse( $parser , $this , $node , $stream ) ) {
+				if (!$block_delimiter->parse($parser, $node, $stream)) {
 					// no delimiter? end of delimited set
 					break;
 				}
 			}
 
 			// get entry
-			if ( !$block_entry->parse( $parser , $this , $node , $stream ) ) {
+			if (!$block_entry->parse($parser, $node, $stream)) {
 				// no entries is an acceptable value
 				if ( $matched === 0 ) break;
 
@@ -113,7 +113,7 @@ class Sections_DelimitedSet extends Sections_Section
 		$stream->commit();
 
 		// insert nodes
-		$this->_insertIntoTree( $parser , $parent , $parent_node , $node );
+		$this->_insertIntoTree($parser, $parent_node, $node);
 
 		return true;
 	}

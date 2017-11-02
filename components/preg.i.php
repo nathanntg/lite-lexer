@@ -33,7 +33,7 @@ class Components_Preg extends Components_Component
 		return $this;
 	}
 
-	public function parse( Parser $parser , ParserBlock $parent , Tree_Branch $parent_node , ParserStream $stream ) {
+	public function parse(Parser $parser, Tree_Branch $parent_node, ParserStream $stream) {
 		$peek = $stream->peek( $this->_max_length );
 
 		// run match
@@ -47,7 +47,7 @@ class Components_Preg extends Components_Component
 			$stream->skip( strlen( $match[ 0 ] ) );
 
 			// add node
-			$this->_insertIntoTree( $parser , $parent , $parent_node , $match[ 0 ] );
+			$this->_insertIntoTree($parser, $parent_node, $match[0]);
 
 			return true;
 		}

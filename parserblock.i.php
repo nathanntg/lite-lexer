@@ -23,7 +23,7 @@ abstract class ParserBlock
      */
     protected $_capture;
 
-	abstract public function parse( Parser $parser , ParserBlock $parent , Tree_Branch $parent_node , ParserStream $stream );
+	abstract public function parse(Parser $parser, Tree_Branch $parent_node, ParserStream $stream);
 
 	/**
 	 * @param string $name
@@ -44,5 +44,5 @@ abstract class ParserBlock
 		return 'unnamed block [' . get_class($this) . ']';
 	}
 
-	abstract protected function _insertIntoTree( Parser $parser , ParserBlock $parent , Tree_Branch $parent_node );
+	abstract protected function _insertIntoTree(Parser $parser, Tree_Branch $parent_node);
 }

@@ -27,7 +27,7 @@ class Components_String extends Components_Component
 		return $this;
 	}
 
-	public function parse( Parser $parser , ParserBlock $parent , Tree_Branch $parent_node , ParserStream $stream ) {
+	public function parse(Parser $parser, Tree_Branch $parent_node, ParserStream $stream) {
 		// use comparison function
 		$function = ( $this->_case_sensitive ? 'strcmp' : 'strcasecmp' );
 
@@ -41,7 +41,7 @@ class Components_String extends Components_Component
 			$stream->skip( $sl );
 
 			// add node
-			$this->_insertIntoTree( $parser , $parent , $parent_node , $peek );
+			$this->_insertIntoTree($parser, $parent_node, $peek);
 
 			// success
 			return true;

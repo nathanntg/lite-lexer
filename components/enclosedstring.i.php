@@ -20,7 +20,7 @@ class Components_EnclosedString extends Components_Component
 		$this->_escape_character = $escape_character;
 	}
 
-	public function parse( Parser $parser , ParserBlock $parent , Tree_Branch $parent_node , ParserStream $stream ) {
+	public function parse(Parser $parser, Tree_Branch $parent_node, ParserStream $stream) {
 		// take stream snapshot
 		$stream->snapshot();
 
@@ -79,7 +79,7 @@ class Components_EnclosedString extends Components_Component
 		}
 
 		// insert node into tree
-		$this->_insertIntoTree( $parser , $parent , $parent_node , $delimiter . $string . $delimiter , $value );
+		$this->_insertIntoTree($parser, $parent_node, $delimiter . $string . $delimiter, $value);
 
 		return true;
 	}
