@@ -15,14 +15,14 @@ class Sections_Optional extends Sections_Section
 		$this->_block = $block;
 	}
 
-	public function parse( Parser $parser , ParserBlock $parent , Tree_Branch $parent_node , ParserStream $stream ) {
+	public function parse(Parser $parser, Tree_Branch $parent_node, ParserStream $stream) {
 		// make tree node
 		$node = new Tree_Branch();
 
 		// use component matcher
-		if ( $parser->getBlock( $this->_block )->parse( $parser , $parent , $node , $stream ) ) {
+		if ($parser->getBlock($this->_block)->parse($parser, $node, $stream)) {
 			// insert into tree
-			$this->_insertIntoTree( $parser , $parent , $parent_node , $node );
+			$this->_insertIntoTree($parser, $parent_node, $node);
 		}
 
 		return true;

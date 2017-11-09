@@ -156,7 +156,7 @@ class Parser
 			$this->_next_block = null; // in case none set by block
 
 			// error parsing section?
-			if ( !$block->parse( $this , null , $this->_tree , $stream ) ) {
+			if (!$block->parse($this, $this->_tree, $stream)) {
 				// throw error exception
 				throw $this->_throwPotentialException( new ParserException( 'Unable to match "' . $block . '".' ) );
 			}

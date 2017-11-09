@@ -23,7 +23,7 @@ abstract class Components_Component extends ParserBlock
 		return $this;
 	}
 
-	protected function _insertIntoTree( Parser $parser , ParserBlock $parent , Tree_Branch $parent_node , $raw_string=null , $pre_processed=null ) {
+	protected function _insertIntoTree(Parser $parser, Tree_Branch $parent_node, $raw_string=null, $pre_processed=null) {
 		// filter
 		if ( $this->_capture === false ) $value = null; // null values are used to keep a raw tree that can be full recombined
 		elseif ( $this->_cb_process ) $value = call_user_func( $this->_cb_process , ( $pre_processed === null ? $raw_string : $pre_processed ) , $raw_string );

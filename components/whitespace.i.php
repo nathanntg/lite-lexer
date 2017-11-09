@@ -27,7 +27,7 @@ class Components_Whitespace extends Components_Component
 		return $this;
 	}
 
-	public function parse( Parser $parser , ParserBlock $parent , Tree_Branch $parent_node , ParserStream $stream ) {
+	public function parse(Parser $parser, Tree_Branch $parent_node, ParserStream $stream) {
 		$raw = '';
 
 		while ( true ) {
@@ -67,13 +67,13 @@ class Components_Whitespace extends Components_Component
 		}
 
 		// add node
-		$this->_insertIntoTree( $parser , $parent , $parent_node , $raw );
+		$this->_insertIntoTree($parser, $parent_node, $raw);
 
 		return true;
 	}
 
 	// TODO: compare performance... probably faster for whitespace heavy parse strings
-	public function parseAlternative( Parser $parser , ParserBlock $parent , Tree_Node $parent_node , ParserStream $stream ) {
+	public function parseAlternative(Parser $parser, Tree_Branch $parent_node, ParserStream $stream) {
 		$raw = '';
 		$chunk_size = 8;
 
@@ -105,7 +105,7 @@ class Components_Whitespace extends Components_Component
 		}
 
 		// add node
-		$this->_insertIntoTree( $parser , $parent , $parent_node , $raw );
+		$this->_insertIntoTree($parser, $parent_node, $raw);
 
 		return true;
 	}

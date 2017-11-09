@@ -36,7 +36,7 @@ class Sections_Ordered extends Sections_Section
 		}
 	}
 
-	public function parse( Parser $parser , ParserBlock $parent , Tree_Branch $parent_node , ParserStream $stream ) {
+	public function parse(Parser $parser, Tree_Branch $parent_node, ParserStream $stream) {
 		// take a stream snapshot
 		$stream->snapshot();
 
@@ -59,7 +59,7 @@ class Sections_Ordered extends Sections_Section
 					$stream->snapshot();
 
 					/** @var ParserBlock $sec */
-					if ( $parser->getBlock( $sec )->parse( $parser , $this , $node , $stream ) ) {
+					if ($parser->getBlock($sec)->parse($parser, $node, $stream)) {
 						// commit
 						$stream->commit();
 
@@ -78,7 +78,7 @@ class Sections_Ordered extends Sections_Section
 			}
 
 			// failed to match
-			if ( !$parser->getBlock( $section )->parse( $parser , $this , $node , $stream ) ) {
+			if (!$parser->getBlock($section)->parse($parser, $node, $stream)) {
 				// roll back to original snapshot
 				$stream->revert();
 
@@ -90,7 +90,7 @@ class Sections_Ordered extends Sections_Section
 		$stream->commit();
 
 		// insert tree
-		$this->_insertIntoTree( $parser , $parent , $parent_node , $node );
+		$this->_insertIntoTree($parser, $parent_node, $node);
 
 		return true;
 	}

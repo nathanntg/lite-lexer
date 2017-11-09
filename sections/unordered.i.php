@@ -50,7 +50,7 @@ class Sections_Unordered extends Sections_Section
 		return $this;
 	}
 
-	public function parse( Parser $parser , ParserBlock $parent , Tree_Branch $parent_node , ParserStream $stream ) {
+	public function parse(Parser $parser, Tree_Branch $parent_node, ParserStream $stream) {
 		// take snapshot
 		$stream->snapshot();
 
@@ -64,7 +64,7 @@ class Sections_Unordered extends Sections_Section
 			// look through array of sections
 			foreach ( $this->_potential_blocks as $block ) {
 				// find first matching phrase
-				if ( $parser->getBlock( $block )->parse( $parser , $this , $node , $stream ) ) {
+				if ( $parser->getBlock( $block )->parse($parser, $node, $stream)) {
 					$matched++;
 					continue;
 				}
@@ -104,7 +104,7 @@ class Sections_Unordered extends Sections_Section
 		$stream->commit();
 
 		// insert tree
-		$this->_insertIntoTree( $parser , $parent , $parent_node , $node );
+		$this->_insertIntoTree($parser, $parent_node, $node);
 
 		return true;
 	}
