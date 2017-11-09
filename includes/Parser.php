@@ -1,6 +1,6 @@
 <?php
 
-namespace Addins\Parser;
+namespace LiteLexer;
 
 /**
  * Class Parser
@@ -12,7 +12,7 @@ class Parser
 {
 	/**
 	 * Named blocks
-	 * @var ParserBlock[]
+	 * @var Block[]
 	 */
 	protected $_blocks;
 
@@ -23,19 +23,19 @@ class Parser
 	protected $_initial_block;
 
 	/**
-	 * @var Sections_Section
+	 * @var Sections\Section
 	 */
 	protected $_next_block;
 
 	/**
-	 * @var Tree_Tree
+	 * @var Tree\Tree
 	 */
 	protected $_tree;
 
 	protected $_exception;
 
 	/**
-	 * @var ParserException[]
+	 * @var Exceptions\Parse[]
 	 */
 	protected $_potential_exceptions = [];
 
@@ -47,19 +47,26 @@ class Parser
 
 	/** CONFIGURATION **/
 
-	public function registerBlock( $name , ParserBlock $block ) {
+	/**
+	 * @param $name
+	 * @param Block $block
+	 */
+	public function registerBlock($name , Block $block) {
 		$block->setName( $name );
 		$this->_blocks[ $name ] = $block;
 	}
 
-	public function setInitialBlock( $block_name ) {
+	/**
+	 * @param $block_name
+	 */
+	public function setInitialBlock($block_name) {
 		$this->_initial_block = $block_name;
 	}
 
 	/**
-	 * @param boolean $throw_parse_exceptions
+	 * @param bool $throw_parse_exceptions
 	 */
-	public function setThrowParseExceptions( $throw_parse_exceptions ) {
+	public function setThrowParseExceptions($throw_parse_exceptions) {
 		$this->_throw_parse_exceptions = $throw_parse_exceptions;
 	}
 
@@ -68,58 +75,61 @@ class Parser
 
 	/**
      * @internal
-	 * @param ParserBlock|string $name
-	 * @return ParserBlock
-	 * @throws ParserConfigurationException
+	 * @param Block|string $name
+	 * @return Block
+	 * @throws Exceptions\Configuration
 	 */
-	public function getBlock( $name ) {
-		if ( $name instanceof ParserBlock ) return $name;
-		if ( !isset( $this->_blocks[ $name ] ) ) throw new ParserConfigurationException('Block "' . $name . '" does not exist in the parser configuration.');
-		return $this->_blocks[ $name ];
+	public function getBlock($name) {
+		// pass blocks directly throw
+		if ($name instanceof Block) {
+			return $name;
+		}
+		if ( !isset( $this->_blocks[ $name ] ) ) {
+			throw new Exceptions\Configuration('Block "' . $name . '" does not exist in the parser configuration.');
+		}
+		return $this->_blocks[$name];
 	}
 
 	/**
      * @internal
-	 * @param ParserBlock $block
+	 * @param Block $block
 	 */
-	public function setNextBlock( ParserBlock $block ) {
+	public function setNextBlock(Block $block ) {
 		$this->_next_block = $block;
 	}
 
     /**
      * Gets a potential exception to throw. If none exist in the queue, the fallback exception is thrown instead. The system
      * considers all potential exceptions and throws the one that occurred earliest in the parse stream.
-     * @param ParserException $fallback
-     * @return ParserException
+     * @param Exceptions\Parse $fallback
+     * @return Exceptions\Parse
      */
-    protected function _throwPotentialException( ParserException $fallback ) {
-		if ( !$this->_potential_exceptions ) return $fallback;
+    protected function _throwPotentialException(Exceptions\Parse $fallback) {
+		if (empty($this->_potential_exceptions)) {
+			return $fallback;
+		}
 
 		$lowest = null;
 		$lowest_key = null;
-		foreach ( $this->_potential_exceptions as $key => $exception ) {
+		foreach ($this->_potential_exceptions as $key => $exception) {
 			// has position?
 			$position = $exception->getStreamPosition();
-			if ( $position === null ) continue;
+			if (null === $position) continue;
 
-			// first with position?
-			if ( $lowest_key === null ) {
-				$lowest_key = $key;
-				$lowest = $position;
-			}
-
-			// earlier?
-			if ( $position < $lowest ) {
+			// first with position? or earlier position in stream?
+			if (null == $lowest_key || $position < $lowest) {
 				$lowest_key = $key;
 				$lowest = $position;
 			}
 		}
 
 		// lowest position (earliest in stream)
-		if ( $lowest_key !== null ) return $this->_potential_exceptions[ $lowest_key ];
+		if (null !== $lowest_key) {
+			return $this->_potential_exceptions[$lowest_key];
+		}
 
 		// last
-		return array_pop( $this->_potential_exceptions );
+		return array_pop($this->_potential_exceptions);
 	}
 
     /**
@@ -132,16 +142,17 @@ class Parser
 
 	/**
      * Performs the parsing of a stream.
-	 * @param ParserStream $stream
+	 * @param Stream $stream
 	 * @return bool
-	 * @throws ParserException
+	 * @throws Exceptions\Parse
 	 */
-	protected function _parse( ParserStream $stream ) {
+	protected function _parse(Stream $stream ) {
 		// set initial mode
 		$this->setNextBlock( $this->getBlock( $this->_initial_block ) );
 
 		// initialize tree
-		$this->_tree = new Tree_Tree();
+		$this->_tree = new Tree\Tree();
+		$this->_tree->setName('root');
 		if ( is_string( $this->_initial_block ) ) $this->_tree->setName( 'root' );
 
 		// reset stream
@@ -150,7 +161,7 @@ class Parser
 		// loop should only parse once
 		// originally had idea to let each block set the next block, which could still be implemented
 		// but same thing can be achieved using ordered list or other blocks
-		while ( true ) {
+		while (true) {
 			// parse current section
 			$block = $this->_next_block;
 			$this->_next_block = null; // in case none set by block
@@ -158,19 +169,19 @@ class Parser
 			// error parsing section?
 			if (!$block->parse($this, $this->_tree, $stream)) {
 				// throw error exception
-				throw $this->_throwPotentialException( new ParserException( 'Unable to match "' . $block . '".' ) );
+				throw $this->_throwPotentialException(new Exceptions\Parse('Unable to match "' . $block . '".'));
 			}
 
 			// no next mode
-			if ( $this->_next_block === null ) {
+			if (null === $this->_next_block) {
 				// is at end of stream?
-				if ( $stream->isEndOfStream() ) {
+				if ($stream->isEndOfStream()) {
 					// success!
 					break;
 				}
 
 				// throw error exception
-				throw $this->_throwPotentialException( new ParserException('Unable to parse "' . $stream->peek($stream->getRemainingLength()) . '".') );
+				throw $this->_throwPotentialException(new Exceptions\Parse('Unable to parse "' . $stream->peek($stream->getRemainingLength()) . '".'));
 			}
 		}
 
@@ -186,10 +197,10 @@ class Parser
      * the one earliest in the parse stream is thrown.
      *
      * @internal
-     * @param ParserStream $stream
-     * @param ParserException $exception
+     * @param Stream $stream
+     * @param Exceptions\Parse $exception
      */
-    public function addPotentialException( ParserStream $stream , ParserException $exception ) {
+    public function addPotentialException(Stream $stream , Exceptions\Parse $exception ) {
 		$exception->addStreamDetails( $stream );
 		$this->_potential_exceptions[] = $exception;
 	}
@@ -197,7 +208,7 @@ class Parser
 	/** - EXTERNAL **/
 
 	/**
-	 * @return Tree_Tree
+	 * @return Tree\Tree
 	 */
 	public function getTree() {
 		return $this->_tree;
@@ -206,16 +217,19 @@ class Parser
 	/**
 	 * @param $string
 	 * @param bool|null $throw_parse_exceptions If null, the default setting is used.
-	 * @return bool|Tree_Tree
-	 * @throws ParserException
+	 * @return bool|Tree\Tree
+	 * @throws Exceptions\Parse
 	 */
 	public function parseString( $string , $throw_parse_exceptions=null ) {
 		try {
-			$this->_parse( new ParserStream( $string ) );
+			$this->_parse( new Stream( $string ) );
 			return $this->getTree();
 		}
-		catch ( ParserException $e ) {
-			if ( $throw_parse_exceptions === null ? $this->_throw_parse_exceptions : $throw_parse_exceptions ) throw $e;
+		catch (Exceptions\Parse $e) {
+			// should throw?
+			if (null === $throw_parse_exceptions ? $this->_throw_parse_exceptions : $throw_parse_exceptions) {
+				throw $e;
+			}
 			return false;
 		}
 	}

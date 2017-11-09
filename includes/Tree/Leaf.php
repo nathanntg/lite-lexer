@@ -1,19 +1,19 @@
 <?php
 
-namespace Addins\Parser;
+namespace LiteLexer\Tree;
 
 /**
- * Class Tree_Leaf
- * @package Addins\Parser
+ * Class Leaf
+ * @package LiteLexer\Tree
  *
  * A leaf in the tree contains something matched by a component.
  */
-class Tree_Leaf extends Tree_Node
+class Leaf extends Node
 {
 	protected $_raw;
 	protected $_processed;
 
-	public function __construct( $raw , $processed=null ) {
+	public function __construct($raw, $processed=null) {
 		$this->_raw = $raw;
 		$this->_processed = $processed;
 	}
@@ -63,7 +63,7 @@ class Tree_Leaf extends Tree_Node
 	 * @param string $prefix
 	 */
 	public function debug($prefix='') {
-		echo $prefix , ( $this->_name ? $this->_name : 'unnamed leaf' ) , '; raw "' , $this->getRaw() , '"; ' , ( $this->_processed === null ? 'DROPPED' : $this->_processed ) , PHP_EOL;
+		echo $prefix, ($this->_name ? $this->_name : 'unnamed leaf'), '; raw "', $this->getRaw(), '"; ', ($this->_processed === null ? 'DROPPED' : $this->_processed), PHP_EOL;
 	}
 
 	/**
@@ -71,7 +71,7 @@ class Tree_Leaf extends Tree_Node
 	 * @return bool
 	 */
 	public function isEmpty() {
-		return ( $this->_processed === null );
+		return (null === $this->_processed);
 	}
 
 	public function prune() {

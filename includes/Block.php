@@ -1,15 +1,15 @@
 <?php
 
-namespace Addins\Parser;
+namespace LiteLexer;
 
 /**
- * Class ParserBlock
- * @package Addins\Parser
+ * Class Block
+ * @package LiteLexer
  *
  * The building block of the parsing engine. Each ParserBlock can match a specific string (components) or a set of other
  * blocks (sections). These are then translated into branches and leaves in the tree.
  */
-abstract class ParserBlock
+abstract class Block
 {
     /**
      * The name for the parse block. Names are used within the parse tree and for debugging purposes.
@@ -23,7 +23,7 @@ abstract class ParserBlock
      */
     protected $_capture;
 
-	abstract public function parse(Parser $parser, Tree_Branch $parent_node, ParserStream $stream);
+	abstract public function parse(Parser $parser, Tree\Branch $parent_node, Stream $stream);
 
 	/**
 	 * @param string $name
@@ -40,9 +40,9 @@ abstract class ParserBlock
 	}
 
 	public function __toString() {
-		if ( isset( $this->_name ) ) return $this->_name;
+		if (isset($this->_name)) return $this->_name;
 		return 'unnamed block [' . get_class($this) . ']';
 	}
 
-	abstract protected function _insertIntoTree(Parser $parser, Tree_Branch $parent_node);
+	abstract protected function _insertIntoTree(Parser $parser, Tree\Branch $parent_node);
 }

@@ -1,19 +1,20 @@
 <?php
 
-namespace Addins\Parser;
+namespace LiteLexer\Exceptions;
+use LiteLexer\Stream;
 
 /**
- * Class ParserException
- * @package Addins\Parser
+ * Class Parse
+ * @package LiteLexer\Exceptions
  *
  * Indicative of an error matching any data. This is often a best guess.
  */
-class ParserException extends \Exception
+class Parse extends Exception
 {
 	protected $_stream_position;
 	protected $_stream_next_bytes;
 
-	public function addStreamDetails( ParserStream $stream ) {
+	public function addStreamDetails(Stream $stream ) {
 		$this->_stream_position = $stream->getPosition();
 		$this->_stream_next_bytes = $stream->peek( 32 );
 

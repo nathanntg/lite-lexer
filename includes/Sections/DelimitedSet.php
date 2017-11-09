@@ -1,6 +1,10 @@
 <?php
 
-namespace Addins\Parser;
+namespace LiteLexer\Sections;
+use LiteLexer\Exceptions\Parse;
+use LiteLexer\Parser;
+use LiteLexer\Stream;
+use LiteLexer\Tree\Branch;
 
 /**
  * Class Sections_DelimitedSet
@@ -12,7 +16,7 @@ namespace Addins\Parser;
  * set store_delimiters to true. Use minimum_entries and maximum_entries to define ranges for number of entries matched.
  * By default, one entry is required.
  */
-class Sections_DelimitedSet extends Sections_Section
+class DelimitedSet extends Section
 {
 	protected $_entry;
 	protected $_delimiter;
@@ -20,7 +24,7 @@ class Sections_DelimitedSet extends Sections_Section
 	protected $_minimum_entries = 1;
 	protected $_maximum_entries;
 
-	public function __construct( $entry , $delimiter , $store_delimiters=false ) {
+	public function __construct($entry, $delimiter, $store_delimiters=false ) {
 		$this->_entry = $entry;
 		$this->_delimiter = $delimiter;
 		$this->_store_delimiters = $store_delimiters;
@@ -56,23 +60,26 @@ class Sections_DelimitedSet extends Sections_Section
 		return $this;
 	}
 
-	public function parse(Parser $parser, Tree_Branch $parent_node, ParserStream $stream) {
+	public function parse(Parser $parser, Branch $parent_node, Stream $stream) {
 		// snapshot
 		$stream->snapshot();
 
 		// make node
-		$node = new Tree_Branch();
+		$node = new Branch();
 
 		$matched = 0;
 
 		// get blocks
-		$block_entry = $parser->getBlock( $this->_entry );
-		$block_delimiter = $parser->getBlock( $this->_delimiter );
-		if ( !$this->_store_delimiters ) $block_delimiter->setCapture( false );
+		$block_entry = $parser->getBlock($this->_entry);
+		$block_delimiter = $parser->getBlock($this->_delimiter);
+		if (!$this->_store_delimiters) {
+			// TODO: could cause bug if delimiter is used elsewhere and should be captured
+			$block_delimiter->setCapture(false);
+		}
 
-		while ( true ) {
+		while (true) {
 			// get delimiter for second and subsequent entries
-			if ( $matched > 0 ) {
+			if (0 < $matched) {
 				// check for delimiter
 				if (!$block_delimiter->parse($parser, $node, $stream)) {
 					// no delimiter? end of delimited set
@@ -83,10 +90,10 @@ class Sections_DelimitedSet extends Sections_Section
 			// get entry
 			if (!$block_entry->parse($parser, $node, $stream)) {
 				// no entries is an acceptable value
-				if ( $matched === 0 ) break;
+				if (0 === $matched) break;
 
 				// add potential exception
-				$parser->addPotentialException( $stream , new ParserException( 'Expecting delimited set entry.' ) );
+				$parser->addPotentialException($stream, new Parse('Expecting delimited set entry.'));
 
 				// revert
 				$stream->revert();
@@ -98,10 +105,21 @@ class Sections_DelimitedSet extends Sections_Section
 			$matched++;
 		}
 
-		// check range
-		if ( ( isset( $this->_minimum_entries ) && $matched < $this->_minimum_entries ) || ( isset( $this->_maximum_entries ) && $matched > $this->_maximum_entries ) ) {
+		// check minimum range
+		if (isset($this->_minimum_entries) && $matched < $this->_minimum_entries) {
 			// add potential exception
-			$parser->addPotentialException( $stream , new ParserException( 'Expecting ' . $this->_minimum_entries . '-' . $this->_maximum_entries . ' entries in the delimited set; found ' . $matched . '.' ) );
+			$parser->addPotentialException($stream, new Parse(sprintf('Expecting at least %d entries in the delimited set; found %d.', $this->_minimum_entries, $matched)));
+
+			// stream revert
+			$stream->revert();
+
+			return false;
+		}
+
+		// check maximum range
+		if (isset($this->_maximum_entries) && $matched > $this->_maximum_entries) {
+			// add potential exception
+			$parser->addPotentialException($stream, new Parse(sprintf('Expecting at most %d entries in the delimited set; found %d.', $this->_maximum_entries, $matched)));
 
 			// stream revert
 			$stream->revert();

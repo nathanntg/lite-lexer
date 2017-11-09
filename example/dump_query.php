@@ -1,55 +1,24 @@
-lite-lexer
-==========
+<?php
 
-A light-weight PHP-based string lexer. By defining parser blocks, a simple syntax can be defined.
-The parser will then build a tree representing the parsed string. This can then be interpreted 
-for other uses.
+require('QueryParser.php');
 
-I created this for a simple query language to read custom data from a model system, but it 
-can easily be adapted to other syntaxes. It has relatively low overhead, and based on my
-testing performed fast (enough so for my application).
+$qp = new QueryParser();
 
-Installation
-------------
+// parse
+$tree = $qp->parseString('customer.namelast=\'\' AND customer.namefirst = \'\' OR ( customer.namelast=\'\' AND customer.namefirst=\'\' )  ORDER customer.namelast DESC , customer.namelast   LIMIT 2');
 
-This package is available via composer and can be added to a project using the command:
+// reconstruct the original string from the parse tree
+$original_query = $tree->getRaw();
 
-```bash
-$ composer require nathanntg/lite-lexer
-```
-
-Usage
------
-
-The recommended usage is to subclass `LiteLexer\Parser` to define your own syntax blocks 
-(see the example implementation). Then you can run your parser as follows:
-
-```php
-$parser = new MyParser();
-
-// parse string
-$tree = $parser->parseString($string_to_parse);
-
-// optional: remove unneeded leaves and branches
+// remove unneeded leaves and branches
 $tree->prune();
 
 // print debugging tree
 $tree->debug();
-```
 
-Example Implementation
-----------------------
+/*
 
-The example folder contains a QueryParser class that implements the parser needed
-to read a basic query language. Specifically, given an input string like the following:
-
-```
-customer.namelast='' AND customer.namefirst = '' OR ( customer.namelast='' AND customer.namefirst='' )  ORDER customer.namelast DESC , customer.namelast   LIMIT 2
-```
-
-It will produce the following parse tree:
-
-```
+PRODUCES:
 root
 	query
 		conditions_main
@@ -109,14 +78,6 @@ root
 		limit_main
 			unnamed leaf; raw "LIMIT"; LIMIT
 			limit_count; raw "2"; 2
-```
 
-Testing
--------
+*/
 
-You can run the PHPUnit tests using the following command (assuming installed via
-composer, and includes the developer requirements):
-
-```bash
-$ vendor/bin/phpunit tests
-```

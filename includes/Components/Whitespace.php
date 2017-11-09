@@ -1,18 +1,26 @@
 <?php
 
-namespace Addins\Parser;
+namespace LiteLexer\Components;
+use LiteLexer\Exceptions\Parse;
+use LiteLexer\Parser;
+use LiteLexer\Stream;
+use LiteLexer\Tree\Branch;
 
 /**
- * Class Components_Whitespace
- * @package Addins\Parser
+ * Class Whitespace
+ * @package LiteLexer\Components
  * Will match 0 or more whitespace characters (same as PHP trim). By default, the characters are not captured. Turning this
  * to mandatory will cause it to only match if there is at least 1 whitespace character.
  */
-class Components_Whitespace extends Components_Component
+class Whitespace extends Component
 {
+	/**
+	 * If there must be one or more spaces for this component to match.
+	 * @var bool
+	 */
 	protected $_mandatory;
 
-	public function __construct( $mandatory=false ) {
+	public function __construct($mandatory=false) {
 		$this->_mandatory = $mandatory;
 		$this->_capture = false;
 	}
@@ -27,15 +35,15 @@ class Components_Whitespace extends Components_Component
 		return $this;
 	}
 
-	public function parse(Parser $parser, Tree_Branch $parent_node, ParserStream $stream) {
+	public function parse(Parser $parser, Branch $parent_node, Stream $stream) {
 		$raw = '';
 
-		while ( true ) {
+		while (true) {
 			// end of stream
-			if ( $stream->isEndOfStream()) break;
+			if ($stream->isEndOfStream()) break;
 
 			// get next character
-			$next = $stream->consume( 1 );
+			$next = $stream->consume(1);
 
 			// is whitespace character?
 			switch ( ord( $next ) ) {
@@ -49,6 +57,7 @@ class Components_Whitespace extends Components_Component
 
 					// break switch
 					break;
+
 				default:
 					// rewind
 					$stream->rewind(1);
@@ -59,9 +68,9 @@ class Components_Whitespace extends Components_Component
 		}
 
 		// check mandatory
-		if ( $this->_mandatory && strlen( $raw ) === 0 ) {
+		if ($this->_mandatory && empty($raw)) {
 			// add potential error
-			$parser->addPotentialException( $stream , new ParserException( 'Expected space.' ) );
+			$parser->addPotentialException($stream, new Parse('Expected space.'));
 
 			return false;
 		}
@@ -73,33 +82,41 @@ class Components_Whitespace extends Components_Component
 	}
 
 	// TODO: compare performance... probably faster for whitespace heavy parse strings
-	public function parseAlternative(Parser $parser, Tree_Branch $parent_node, ParserStream $stream) {
+	public function parseAlternative(Parser $parser, Branch $parent_node, Stream $stream) {
 		$raw = '';
 		$chunk_size = 8;
 
-		while ( true ) {
-			if ( $stream->isEndOfStream()) break;
+		while (true) {
+			if ($stream->isEndOfStream()) break;
 
 			// read chunk
-			$chunk = $stream->consume( $chunk_size );
+			$chunk = $stream->consume($chunk_size);
 
 			// trim white space
-			$new_chunk = ltrim( $chunk );
+			$new_chunk = ltrim($chunk);
 
 			// any characters left? rewind by remaining length
-			if ( $new_chunk ) {
-				$stream->rewind( strlen( $new_chunk ) );
+			if ($new_chunk) {
+				// rewind
+				$stream->rewind(strlen($new_chunk));
+
+				// append any whitespaces
+				$to_append = $chunk_size - strlen($new_chunk);
+				if ($to_append) {
+					$raw .= substr($chunk, 0, $to_append);
+				}
+
 				break;
 			}
 
 			// track raw for node
-			$raw .= substr( $chunk , 0 , $chunk_size - strlen( $new_chunk ) );
+			$raw .= $chunk;
 		}
 
 		// check mandatory
-		if ( $this->_mandatory && strlen( $raw ) === 0 ) {
+		if ($this->_mandatory && empty($raw)) {
 			// add potential error
-			$parser->addPotentialException( $stream , new ParserException( 'Expected space.' ) );
+			$parser->addPotentialException($stream, new Parse('Expected space.'));
 
 			return false;
 		}

@@ -1,29 +1,30 @@
 <?php
 
-namespace Addins\Parser;
+namespace LiteLexer\Tree;
+use LiteLexer\Exceptions\TreeRead;
 
 /**
- * Class Tree_Branch
- * @package Addins\Parser
+ * Class Branch
+ * @package LiteLexer\Tree
  *
  * A branch in the tree contains something matched by a section. There are a number of helper functions for
  * reading children easily.
  */
-class Tree_Branch extends Tree_Node implements \ArrayAccess, \Countable, \IteratorAggregate
+class Branch extends Node implements \ArrayAccess, \Countable, \IteratorAggregate
 {
 	/**
-	 * @var Tree_Node[]
+	 * @var Node[]
 	 */
 	protected $_nodes = [];
 
-	public function addNode( Tree_Node $node ) {
-		$node->setParent( $this );
+	public function addNode(Node $node) {
+		$node->setParent($this);
 		$this->_nodes[] = $node;
 	}
 
-	public function mergeNode( Tree_Branch $node ) {
-		foreach ( $node->_nodes as $sub_node ) {
-			$sub_node->setParent( $this );
+	public function mergeNode(Branch $node) {
+		foreach ($node->_nodes as $sub_node) {
+			$sub_node->setParent($this);
 			$this->_nodes[] = $sub_node;
 		}
 		//$node->_nodes = [];
@@ -33,7 +34,7 @@ class Tree_Branch extends Tree_Node implements \ArrayAccess, \Countable, \Iterat
 	 * Used by un-captured sections. Will discard all processed data from leaf nodes.
 	 */
 	public function emptyLeafNodes() {
-		foreach ( $this->_nodes as $node ) {
+		foreach ($this->_nodes as $node) {
 			$node->emptyLeafNodes();
 		}
 	}
@@ -45,12 +46,14 @@ class Tree_Branch extends Tree_Node implements \ArrayAccess, \Countable, \Iterat
 	 */
 	public function getRaw() {
 		$raw = '';
-		foreach ( $this->_nodes as $node ) $raw .= $node->getRaw();
+		foreach ($this->_nodes as $node) {
+			$raw .= $node->getRaw();
+		}
 		return $raw;
 	}
 
 	/**
-	 * @return Tree_Node[]
+	 * @return Node[]
 	 */
 	public function getNodes() {
 		return $this->_nodes;
@@ -59,29 +62,35 @@ class Tree_Branch extends Tree_Node implements \ArrayAccess, \Countable, \Iterat
 	/**
 	 * Get all nodes with a specific name.
 	 * @param string $name
-	 * @return Tree_Branch[]|Tree_Leaf[]
+	 * @return Branch[]|Leaf[]
 	 */
 	public function getAll( $name ) {
 		$ret = [];
-		foreach ( $this->_nodes as $node ) {
-			if ( $node->getName() === $name ) $ret[] = $node;
+		foreach ($this->_nodes as $node) {
+			if ($node->getName() === $name) {
+				$ret[] = $node;
+			}
 		}
 		return $ret;
 	}
 
 	/**
 	 * @param string|null $assert_name
-	 * @return Tree_Branch|Tree_Leaf
-	 * @throws ParserTreeException
+	 * @return Branch|Leaf|Node
+	 * @throws TreeRead
 	 */
 	public function getOnly($assert_name=null) {
 		// check count
-		if ( count( $this->_nodes ) !== 1 ) throw new ParserTreeException( $this , 'does not contain a single node' );
+		if (1 !== count($this->_nodes)) {
+			throw new TreeRead($this, 'does not contain a single node');
+		}
 
-		$node = $this->_nodes[ 0 ];
+		$node = $this->_nodes[0];
 
 		// check name
-		if ( $assert_name !== null && $node->getName() !== $assert_name ) throw new ParserTreeException( $this , 'expecting "' . $assert_name . '" as single node' );
+		if (null !== $assert_name && $node->getName() !== $assert_name ) {
+			throw new TreeRead($this, 'expecting "' . $assert_name . '" as single node');
+		}
 
 		return $node;
 	}
@@ -89,14 +98,18 @@ class Tree_Branch extends Tree_Node implements \ArrayAccess, \Countable, \Iterat
 	/**
 	 * @param string $name
 	 * @param bool $required
-	 * @return Tree_Branch|Tree_Leaf|null
-	 * @throws ParserTreeException
+	 * @return Branch|Leaf|Node|null
+	 * @throws TreeRead
 	 */
 	public function getFirst( $name , $required=true ) {
-		foreach ( $this->_nodes as $node ) {
-			if ( $node->getName() === $name ) return $node;
+		foreach ($this->_nodes as $node) {
+			if ($node->getName() === $name) {
+				return $node;
+			}
 		}
-		if ( $required ) throw new ParserTreeException( $this , 'expecting one of "' . $name . '"' );
+		if ($required) {
+			throw new TreeRead($this, 'expecting one of "' . $name . '"');
+		}
 		return null;
 	}
 
@@ -162,10 +175,10 @@ class Tree_Branch extends Tree_Node implements \ArrayAccess, \Countable, \Iterat
 	}
 
 	public function offsetSet($offset,$val) {
-		throw new ParserTreeException($this,'unable to write to tree');
+		throw new TreeRead($this,'unable to write to tree');
 	}
 
 	public function offsetUnset($offset) {
-		throw new ParserTreeException($this,'unable to write to tree');
+		throw new TreeRead($this,'unable to write to tree');
 	}
 }
