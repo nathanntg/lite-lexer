@@ -1,6 +1,6 @@
 <?php
 
-namespace Addins\Parser;
+namespace LiteLexer;
 
 /**
  * Class ParserStream
@@ -10,7 +10,7 @@ namespace Addins\Parser;
  * a "transaction" like system that allows conditional consumption which can be rolled back if subsequent blocks don't
  * match.
  */
-class ParserStream
+class Stream
 {
 	protected $_rollback = [];
 	protected $_string;

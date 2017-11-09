@@ -1,8 +1,12 @@
 <?php
 
-namespace Addins\Parser;
+namespace LiteLexer\Tree;
 
-abstract class Tree_Node
+/**
+ * Class Node
+ * @package LiteLexer\Tree
+ */
+abstract class Node
 {
 	/**
 	 * @var self|null
@@ -20,7 +24,7 @@ abstract class Tree_Node
 	/**
 	 * @param self $parent
 	 */
-	public function setParent( self $parent) {
+	public function setParent(self $parent) {
 		$this->_parent = $parent;
 	}
 

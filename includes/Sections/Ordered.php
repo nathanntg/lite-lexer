@@ -1,10 +1,14 @@
 <?php
 
-namespace Addins\Parser;
+namespace LiteLexer\Sections;
+use LiteLexer\Parser;
+use LiteLexer\Stream;
+use LiteLexer\Tree\Branch;
 
 /**
  * Class Sections_Ordered
- * @package Addins\Parser
+ * @package LiteLexer\Sections
+ *
  * This section looks for a set of blocks in a specific order. If it does not find all blocks in the specified order,
  * nothing is matched. This class can also do some branching behavior that can be achieved by a combination of
  * Sections_Single and Sections_Optional by nesting arguments in arrays.
@@ -20,15 +24,15 @@ namespace Addins\Parser;
  * new Sections_Ordered('conditions',['order_by','limit',null])
  * will match "conditions" order "conditions order_by" or "conditions limit"
  */
-class Sections_Ordered extends Sections_Section
+class Ordered extends Section
 {
 	/**
-	 * @var array
+	 * @var string[]
 	 */
 	protected $_sections;
 
-	public function __construct( $sections ) {
-		if ( is_array( $sections ) && func_num_args() === 1 ) {
+	public function __construct($sections) {
+		if (is_array($sections) && 1 === func_num_args()) {
 			$this->_sections = $sections;
 		}
 		else {
@@ -36,21 +40,22 @@ class Sections_Ordered extends Sections_Section
 		}
 	}
 
-	public function parse(Parser $parser, Tree_Branch $parent_node, ParserStream $stream) {
+	public function parse(Parser $parser, Branch $parent_node, Stream $stream) {
 		// take a stream snapshot
 		$stream->snapshot();
 
-		static $count = 0;
+		// node
+		$node = new Branch();
 
-		$node = new Tree_Branch();
-
-		foreach ( $this->_sections as $section ) {
-			// if the section is an array, treat it as a bunch of options (shorthand to avoid Sections_Single)
-			if ( is_array( $section ) ) {
+		// for each section...
+		foreach ($this->_sections as $section) {
+			// if the section is an array, treat it as a bunch of options (shorthand to avoid Single)
+			// can also have null at the end of the list of options to make the section optional
+			if (is_array($section)) {
 				// consider each option...
-				foreach ( $section as $sec ) {
+				foreach ($section as $sec) {
 					// can skip
-					if ( $sec === null ) {
+					if (null === $sec) {
 						// next section
 						continue 2;
 					}
@@ -58,7 +63,7 @@ class Sections_Ordered extends Sections_Section
 					// another snapshot for this option
 					$stream->snapshot();
 
-					/** @var ParserBlock $sec */
+					// try match...
 					if ($parser->getBlock($sec)->parse($parser, $node, $stream)) {
 						// commit
 						$stream->commit();
@@ -67,11 +72,11 @@ class Sections_Ordered extends Sections_Section
 						continue 2;
 					}
 
-					// doesn't match...
+					// did not match, revert snap shot
 					$stream->revert();
 				}
 
-				// doesn't match any of the options
+				// did not match any of the options
 				$stream->revert();
 
 				return false;
@@ -94,5 +99,4 @@ class Sections_Ordered extends Sections_Section
 
 		return true;
 	}
-
 }

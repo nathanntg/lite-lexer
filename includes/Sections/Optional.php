@@ -1,23 +1,27 @@
 <?php
 
-namespace Addins\Parser;
+namespace LiteLexer\Sections;
+use LiteLexer\Parser;
+use LiteLexer\Stream;
+use LiteLexer\Tree\Branch;
 
 /**
- * Class Sections_Optional
- * @package Addins\Parser
+ * Class Optional
+ * @package LiteLexer\Sections
+ *
  * An easier wrapper to define an optional block.
  */
-class Sections_Optional extends Sections_Section
+class Optional extends Section
 {
 	protected $_block;
 
-	public function __construct( $block ) {
+	public function __construct($block) {
 		$this->_block = $block;
 	}
 
-	public function parse(Parser $parser, Tree_Branch $parent_node, ParserStream $stream) {
+	public function parse(Parser $parser, Branch $parent_node, Stream $stream) {
 		// make tree node
-		$node = new Tree_Branch();
+		$node = new Branch();
 
 		// use component matcher
 		if ($parser->getBlock($this->_block)->parse($parser, $node, $stream)) {
