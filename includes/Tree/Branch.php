@@ -137,7 +137,7 @@ class Branch extends Node implements \ArrayAccess, \Countable, \IteratorAggregat
 	 * Remove empty children.
 	 */
 	public function prune() {
-		$new_nodes = [];
+		$new_nodes = array();
 
 		foreach ( $this->_nodes as $node ) {
 			// prune sub nodes
@@ -148,6 +148,32 @@ class Branch extends Node implements \ArrayAccess, \Countable, \IteratorAggregat
 		}
 
 		$this->_nodes = $new_nodes;
+	}
+
+	public function collapseSingleUnnamedNodes() {
+		// one sub node with no name? replace
+		if (1 === count($this->_nodes) && null === $this->_nodes[0]->getName()) {
+			$node = $this->_nodes[0];
+			$node->setName($this->getName());
+			$node->setParent($this->_parent);
+			return $node;
+		}
+
+		// collapse sub nodes
+		$new_nodes = array();
+
+		foreach ($this->_nodes as $node) {
+			if ($node instanceof Branch) {
+				$new_nodes[] = $node->collapseSingleUnnamedNodes();
+			}
+			else {
+				$new_nodes[] = $node;
+			}
+		}
+
+		$this->_nodes = $new_nodes;
+
+		return $this;
 	}
 
 	/**
