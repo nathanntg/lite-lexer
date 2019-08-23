@@ -126,6 +126,7 @@ class QueryParserTest extends \PHPUnit\Framework\TestCase
 		$qp->setThrowParseExceptions(false);
 
 		$this->assertInstanceOf('LiteLexer\Tree\Tree', $qp->parseString('customer.namelast = \'\''));
+		$this->assertInstanceOf('LiteLexer\Tree\Tree', $qp->parseString('hold IS NOT NULL'));
 	}
 
 	/**
