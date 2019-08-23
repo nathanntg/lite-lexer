@@ -25,7 +25,7 @@ class QueryParser extends \LiteLexer\Parser
 		$this->registerBlock('value', new \LiteLexer\Sections\Single('value_string', 'value_numeric', 'value_boolean', 'value_null', 'value_set'));
 
 		// add operator
-		$operators = ['<=', '>=', '>', '=>', '=<', '=', '==', '<>', '!=', 'IS', 'IS NOT', 'IN', 'NOT IN', 'LIKE', 'NOT LIKE'];
+		$operators = ['<=', '>=', '>', '=>', '=<', '=', '==', '<>', '!=', 'IS NOT', 'IS', 'IN', 'NOT IN', 'LIKE', 'NOT LIKE'];
 		$operator_blocks = array_map(function ($op) {
 			return new \LiteLexer\Components\StringLiteral($op);
 		}, $operators);
