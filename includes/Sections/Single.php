@@ -58,7 +58,7 @@ class Single extends Section
 		// required
 		if ($this->_required) {
 			// add potential exception
-			$parser->addPotentialException($stream, new Parse(sprintf('Expection one of %s .', implode(', ', $this->_potential_blocks))));
+			$parser->addPotentialException($stream, new Parse(sprintf('Expected one of %s.', implode(', ', $this->_potential_blocks))));
 
 			return false;
 		}
